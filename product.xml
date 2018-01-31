@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+	<product name="accsoft-gui-minifx-fxmlloading" version="0.0.1" directory="accsoft/gui/accsoft-gui-minifx-fxmlloading">
+		<desc>The loading mechanism for fxml forms</desc>
+		<dependencies>
+			<dep product="javax.inject" />
+			<dep product="mockito-core" version="PRO" locl="true" />
+			<dep product="junit" version="PRO" local="true" />
+		</dependencies>
+	</product>
+</products>
