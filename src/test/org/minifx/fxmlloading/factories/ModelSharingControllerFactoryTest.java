@@ -2,7 +2,7 @@
  * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package org.minifx.fxmlloading.factory;
+package org.minifx.fxmlloading.factories;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
