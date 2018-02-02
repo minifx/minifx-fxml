@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.minifx.fxmlloading.factories.ModelSharingControllerFactory;
 
 import javafx.geometry.Side;
 

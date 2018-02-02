@@ -4,8 +4,6 @@
 
 package org.minifx.fxmlloading;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.minifx.fxmlloading.configuration.FxmlLoadingConfiguration;
 import org.minifx.fxmlloading.configuration.impl.ControllerBasedFxmlLoadingConfiguration;

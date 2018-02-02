@@ -6,7 +6,7 @@ package org.minifx.fxmlloading.lang;
 
 import java.util.Objects;
 
-import org.minifx.fxmlloading.builder.FxmlNodeBuilder;
+import org.minifx.fxmlloading.builders.FxmlNodeBuilders;
 import org.minifx.fxmlloading.factories.impl.ControllerFactory;
 
 import javafx.scene.Node;
@@ -20,11 +20,11 @@ public class OngoingNodeCreation {
     }
 
     public Node byConventionFrom(Class<?> controllerClass) {
-        return FxmlNodeBuilder.byConventionFrom(controllerClass).controllersFrom(controllerFactory).build();
+        return FxmlNodeBuilders.byConventionFrom(controllerClass).controllersFrom(controllerFactory).build();
     }
 
     public Node fromFxml(String classpathResource) {
-        return FxmlNodeBuilder.fromFxml(classpathResource).controllersFrom(controllerFactory).build();
+        return FxmlNodeBuilders.fromFxml(classpathResource).controllersFrom(controllerFactory).build();
     }
 
 }

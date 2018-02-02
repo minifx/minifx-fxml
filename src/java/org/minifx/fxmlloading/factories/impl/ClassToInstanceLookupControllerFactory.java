@@ -16,21 +16,21 @@ import java.util.Map;
  *
  * @author kfuchsbe
  */
-public class ClassToInstanceControllerFactory implements ControllerFactory {
+public class ClassToInstanceLookupControllerFactory implements ControllerFactory {
 
     private final Map<Class<?>, Object> instances;
 
-    public ClassToInstanceControllerFactory(Map<Class<?>, Object> instances) {
+    public ClassToInstanceLookupControllerFactory(Map<Class<?>, Object> instances) {
         this.instances = new HashMap<>(requireNonNull(instances, "instances must not be null"));
     }
 
-    public static final ClassToInstanceControllerFactory ofInstances(Object... controllerInstances) {
+    public static final ClassToInstanceLookupControllerFactory ofInstances(Iterable<?> controllerInstances) {
         requireNonNull(controllerInstances, "controllerInstances must not be null");
         Map<Class<?>, Object> classToInstances = new HashMap<>();
         for (Object instance : controllerInstances) {
             putOrThrowIfPresent(classToInstances, instance);
         }
-        return new ClassToInstanceControllerFactory(classToInstances);
+        return new ClassToInstanceLookupControllerFactory(classToInstances);
     }
 
     private static void putOrThrowIfPresent(Map<Class<?>, Object> classToInstances, Object instance) {
@@ -45,16 +45,6 @@ public class ClassToInstanceControllerFactory implements ControllerFactory {
     @Override
     public Object call(Class<?> param) {
         return instances.get(param);
-    }
-
-    public ClassToInstanceControllerFactory and(Object controllerInstance) {
-        requireNonNull(controllerInstance, "controllerInstance must not be null");
-        Map<Class<?>, Object> builder = new HashMap<>(instances);
-        putOrThrowIfPresent(builder, controllerInstance);
-
-        Class<? extends Object> type = controllerInstance.getClass();
-        builder.put(type, controllerInstance);
-        return new ClassToInstanceControllerFactory(builder);
     }
 
 }
