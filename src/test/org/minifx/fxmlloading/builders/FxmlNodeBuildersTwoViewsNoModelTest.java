@@ -17,7 +17,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
-public class FxmlNodeBuildersTwoViewsTest extends ApplicationTest {
+public class FxmlNodeBuildersTwoViewsNoModelTest extends ApplicationTest {
 
     @Test
     public void usageExamples() throws InterruptedException {
