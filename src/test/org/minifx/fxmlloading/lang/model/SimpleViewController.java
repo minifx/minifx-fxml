@@ -2,7 +2,7 @@
  * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package org.minifx.fxmlloading.lang;
+package org.minifx.fxmlloading.lang.model;
 
 /**
  * Sample Skeleton for 'SimpleView.fxml' Controller Class

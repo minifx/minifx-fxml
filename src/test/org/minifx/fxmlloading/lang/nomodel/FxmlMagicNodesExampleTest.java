@@ -2,9 +2,10 @@
  * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
  */
 
-package org.minifx.fxmlloading.lang;
+package org.minifx.fxmlloading.lang.nomodel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.minifx.fxmlloading.lang.FxmlMagicNodes.globallyWiredNode;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class FxmlMagicNodesExampleTest extends ApplicationTest {
 
     @Override
     public void start(Stage stage) throws Exception {
-        root = FxmlMagicNodes.globallyWiredNode().byConventionFrom(SimpleViewController.class);
+        root = globallyWiredNode().byConventionFrom(SimpleViewController.class);
         stage.setScene(new Scene(root));
         stage.show();
     }
