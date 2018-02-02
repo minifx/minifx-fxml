@@ -11,6 +11,7 @@ import org.minifx.fxmlloading.configuration.FxmlLoadingConfiguration;
 import org.minifx.fxmlloading.factories.impl.ControllerFactory;
 
 import javafx.scene.Node;
+import javafx.scene.Parent;
 
 public abstract class AbstractFxmlNodeBuilder<F extends ControllerFactory> implements FxmlNodeBuilder {
 
@@ -28,7 +29,7 @@ public abstract class AbstractFxmlNodeBuilder<F extends ControllerFactory> imple
     }
 
     @Override
-    public final Node build() {
+    public final Parent build() {
         return FxmlNodeLoader.loadNodeFrom(configuration, factory);
     }
 

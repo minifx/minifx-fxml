@@ -10,6 +10,7 @@ import org.minifx.fxmlloading.builders.FxmlNodeBuilders;
 import org.minifx.fxmlloading.factories.impl.ControllerFactory;
 
 import javafx.scene.Node;
+import javafx.scene.Parent;
 
 public class OngoingNodeCreation {
 
@@ -19,11 +20,11 @@ public class OngoingNodeCreation {
         this.controllerFactory = Objects.requireNonNull(controllerFactory, "controllerFactory must not be null");
     }
 
-    public Node byConventionFrom(Class<?> controllerClass) {
+    public Parent byConventionFrom(Class<?> controllerClass) {
         return FxmlNodeBuilders.byConventionFrom(controllerClass).controllersFrom(controllerFactory).build();
     }
 
-    public Node fromFxml(String classpathResource) {
+    public Parent fromFxml(String classpathResource) {
         return FxmlNodeBuilders.fromFxml(classpathResource).controllersFrom(controllerFactory).build();
     }
 

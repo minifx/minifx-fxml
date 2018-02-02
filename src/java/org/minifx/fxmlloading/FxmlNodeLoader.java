@@ -28,13 +28,13 @@ public class FxmlNodeLoader {
         this.controllerFactory = requireNonNull(controllerFactory, "controllerFactory must not be null");
     }
 
-    public static final Node loadNodeFrom(FxmlLoadingConfiguration convention,
+    public static final Parent loadNodeFrom(FxmlLoadingConfiguration convention,
             Callback<Class<?>, Object> childControllerFactory) {
         return new FxmlNodeLoader(convention, childControllerFactory).create();
     }
 
-    private Node create() {
-        return stackPaneOf(loadFxml());
+    private Parent create() {
+        return loadFxml();
     }
 
     private Parent loadFxml() {
@@ -49,7 +49,7 @@ public class FxmlNodeLoader {
         }
     }
 
-    private static final Node stackPaneOf(Parent root) {
+    private static final Parent stackPaneOf(Parent root) {
         StackPane stackPane = new StackPane();
         stackPane.getChildren().add(root);
         return stackPane;

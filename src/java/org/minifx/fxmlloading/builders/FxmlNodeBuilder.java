@@ -4,7 +4,7 @@
 
 package org.minifx.fxmlloading.builders;
 
-import javafx.scene.Node;
+import javafx.scene.Parent;
 
 /**
  * An interface for builders that allow to build nodes. Additionally to the common build method, they provide a method
@@ -19,7 +19,7 @@ public interface FxmlNodeBuilder {
      *
      * @return the new instance of the node
      */
-    public Node build();
+    public Parent build();
 
     /**
      * Can be (optionally) called before the build method to check if the call to {@link #build()} will be successful.
