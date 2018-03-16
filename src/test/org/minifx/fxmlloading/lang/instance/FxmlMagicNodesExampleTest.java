@@ -9,6 +9,7 @@ import static org.minifx.fxmlloading.lang.FxmlMagicNodes.globallyWiredNode;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.minifx.fxmlloading.builders.FxmlNodeBuilders;
 import org.testfx.framework.junit.ApplicationTest;
 
 import javafx.scene.Parent;
@@ -44,7 +45,7 @@ public class FxmlMagicNodesExampleTest extends ApplicationTest {
 
     @Override
     public void start(Stage stage) throws Exception {
-        root = globallyWiredNode().byConventionFrom(SimpleViewController.class);
+        root = FxmlNodeBuilders.byConventionFrom(new SimpleViewController(new SimpleViewValueModel())).build();
         stage.setScene(new Scene(root));
         stage.show();
     }

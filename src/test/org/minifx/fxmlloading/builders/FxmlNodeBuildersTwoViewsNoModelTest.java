@@ -21,7 +21,7 @@ public class FxmlNodeBuildersTwoViewsNoModelTest extends ApplicationTest {
 
     @Test
     public void usageExamples() throws InterruptedException {
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
         assertTrue(true);
     }
 
