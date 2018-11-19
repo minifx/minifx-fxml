@@ -7,11 +7,11 @@
 			<dep product="slf4j-api" version = "PRO" />
 			<dep product="log4j-slf4j-impl" version="2.7" local="true" />
 
-			<dep product="mockito-core" version="PRO" locl="true" />
-			<dep product="testfx-core" version="PRO" locl="true" />
-			<dep product="testfx-junit" version="PRO" locl="true" />
-			<dep product="assertj-core" version="PRO" locl="true" />
-			<dep product="mockito-core" version="PRO" locl="true" />
+			<dep product="mockito-core" version="PRO" local="true" />
+			<dep product="testfx-core" version="PRO" local="true" />
+			<dep product="testfx-junit" version="PRO" local="true" />
+			<dep product="assertj-core" version="PRO" local="true" />
+			<dep product="mockito-core" version="PRO" local="true" />
 			<dep product="junit" version="PRO" local="true" />
 		</dependencies>
 	</product>
