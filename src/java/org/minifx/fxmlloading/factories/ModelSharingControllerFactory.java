@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
  * A default factory for FXML controllers.
  * <p>
  * This class supports a basic field injection using {@link Inject @Inject} annotation. It can be used to initialize and
- * configure controller, model or service instances, and bind them together. <br/>
+ * configure controller, model or service instances, and bind them together.
  * For every call of {@link #createController(Class)} method - a new controller instance is created, but all the
  * injected dependencies (models, services, etc) are instantiated only once, stored in cache and used as singletons.
  * </p>
  * <p>
  * The factory first makes an attempt to match field to be injected with System properties and then with an optional
  * {@link #fromPropertiesProvider(Function) properties provider}. The matching is done using {@link Named @Named}
- * annotation if present, otherwise using field's name.<br/>
+ * annotation if present, otherwise using field's name.
  * If no matching property is found, the factory consults dependencies cache trying find a match with the field by
  * <b>exact</b> type. Otherwise it requests the instance provider to supply a new instance of given type, injects all
  * its dependencies and puts into the cache.
@@ -98,7 +98,7 @@ public class ModelSharingControllerFactory implements ControllerFactory {
     private final Function<String, Object> propertiesProvider;
 
     public ModelSharingControllerFactory(Function<Class<?>, Object> instanceProvider,
-            Function<String, Object> propertiesProvider) {
+                                         Function<String, Object> propertiesProvider) {
         this.instanceProvider = requireNonNull(instanceProvider, "instanceProvider must not be null");
         this.propertiesProvider = propertiesProvider;
     }
@@ -119,6 +119,7 @@ public class ModelSharingControllerFactory implements ControllerFactory {
     /**
      * Creates a new instance of the given controller class.
      *
+     * @param <T> the type of the controller to create
      * @param controllerClass class of the FXML controller used to locate the FXML file
      * @return the instance of the controller
      */
@@ -203,7 +204,7 @@ public class ModelSharingControllerFactory implements ControllerFactory {
     /**
      * Stores given dependency in a cache.
      *
-     * @param type class of the dependency used for matching with injectable fields
+     * @param type       class of the dependency used for matching with injectable fields
      * @param dependency the instance to be injected into fields of specified type
      * @throws NullPointerException if the {@code type} is {@code null}
      */
