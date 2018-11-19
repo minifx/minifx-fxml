@@ -5,7 +5,7 @@ buildscript {
     project.ext.POM = [
             groupId    : 'org.minifx',
             artifactId : 'minifx-fxml',
-            description: 'A very minimalistic approach for a workbench using spring and javafx.'
+            description: 'fxml loading by conventions'
     ]
     project.ext.INFO = [
             repo            : 'https://github.com/minifx/minifx-fxml.git',
