@@ -32,7 +32,7 @@ group = project['POM.groupId']
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    if (CERN_VM) {
+    if (project['CERN_VM']) {
         maven { url 'http://artifactory.cern.ch/ds-jcenter' }
         maven { url 'http://artifactory.cern.ch/development' }
     } else {
@@ -56,13 +56,10 @@ task wrapper(type: Wrapper) { gradleVersion = '4.10.2' }
 
 sourceSets {
     main {
-        java { srcDirs = ['src/java'] }
-        resources { srcDirs = ['src/java'] }
+        resources { srcDirs = ['src/main/java'] }
     }
-
     test {
-        java { srcDirs = ['src/test'] }
-        resources { srcDirs = ['src/test'] }
+        resources { srcDirs = ['src/test/java'] }
     }
 }
 
