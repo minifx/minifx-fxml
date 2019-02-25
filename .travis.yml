@@ -29,6 +29,6 @@ deploy:
     keep-history: false
     on:
       branch: master
-      jdk: oraclejdk8
+      jdk: oraclejdk9
 after_success:
 - bash <(curl -s https://codecov.io/bash)
