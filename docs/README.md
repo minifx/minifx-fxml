@@ -5,8 +5,12 @@
 [![codecov](https://codecov.io/gh/minifx/minifx-fxml/branch/master/graph/badge.svg)](https://codecov.io/gh/minifx/minifx-fxml)
 
 
-# minifx-fxml
-Simplifies fxml loading by conventions.
+This package is maintained as part of the [minifx](https://github.com/minifx) organization on github. The main web page 
+of minifx can be found [here](https://minifx.org).
+
+## Motivation
+
+This library simplifies fxml loading by conventions.
 
 The basic ideas for this small library are the same than that of Adam Biens 
 [afterburner.fx](https://github.com/AdamBien/afterburner.fx): fxml files, their controllers and (optionally) css files
