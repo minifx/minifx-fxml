@@ -130,9 +130,11 @@ Other options here are:
 | ```controllers(Iterable<?> controllerInstances)``` | pick the controllers from the iterable if their final class is the required one |
 | ```controllers(Object... controllerInstances)``` | convenience method for the above one
 
+ ## Build Artifacts of the Latest Version
  
- ### More to come
+* [dependency license report](https://minifx.org/minifx-fxml/dependency-license/index.html)
+* [junit test report](https://minifx.org/minifx-fxml/tests/test/index.html)
+* [jacoco test report](https://minifx.org/minifx-fxml/jacoco/test/html/index.html) 
+* [javadoc](https://minifx.org/minifx-fxml/javadoc/index.html) 
  
- There is more documentation to come soon - Stay tuned!
-  
-  Happy View Creation so far!!!
+ 
