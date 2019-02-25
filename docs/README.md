@@ -128,7 +128,7 @@ Other options here are:
 | ---------------| -------|
 | ```controllersFrom(Callback<Class<?>, Object> controllerFactory)``` | retrieve the controllers and model objects from the passed int callback (e.g. a lambda expression)
 | ```controllers(Iterable<?> controllerInstances)``` | pick the controllers from the iterable if their final class is the required one |
-| ```controllers(Object... controllerInstances)``` | convenience method for the above one
+| ```controllers(Object... controllerInstances)``` | convenience method for the above one |
 
  ## Build Artifacts of the Latest Version
  
