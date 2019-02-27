@@ -134,7 +134,7 @@ Other options here are:
 | ```controllers(Iterable<?> controllerInstances)``` | pick the controllers from the iterable if their final class is the required one |
 | ```controllers(Object... controllerInstances)``` | convenience method for the above one |
 
- ## Build Artifacts of the Latest Version
+## Build Artifacts of the Latest Version
  
 * [dependency license report](https://minifx.org/minifx-fxml/dependency-license/index.html)
 * [junit test report](https://minifx.org/minifx-fxml/tests/test/index.html)
