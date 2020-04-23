@@ -122,7 +122,7 @@ idea {
 }
 
 javafx {
-    modules = ['javafx.fxml']
+    modules = ['javafx.fxml', 'javafx.controls']
 }
 
 if (!project['CERN_VM']) {

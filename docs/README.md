@@ -17,6 +17,10 @@ The basic ideas for this small library are the same than that of Adam Biens
 are loaded by naming conventions. However, this library provides a bit more finegrained control over the objects 
 to be injected into the controller objects themselves.
 
+## Requirements
+
+From the 2.0.0 version onwards, this library requires java 11. Lower versions require java 8.
+
 ## Getting Started
 
 To use minifx-fxml in your applications you have to add one of the following to your build files:
