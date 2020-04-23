@@ -25,10 +25,15 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.7' apply false
+}
+
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'org.openjfx.javafxplugin'
 
 group = project['POM.groupId']
 
@@ -114,6 +119,10 @@ idea {
         downloadJavadoc = true
         downloadSources = true
     }
+}
+
+javafx {
+    modules = ['javafx.fxml']
 }
 
 if (!project['CERN_VM']) {
