@@ -1,12 +1,12 @@
 language: java
 sudo: false
 jdk:
-- openjdk11
+  - openjdk11
 before_install:
-- chmod +x ./gradlew
+  - chmod +x ./gradlew
 script:
-- xvfb-run ./gradlew check --stacktrace
-- ./gradlew jacocoTestReport
+  - xvfb-run ./gradlew check --stacktrace
+  - ./gradlew jacocoTestReport
 before_deploy:
   - ./gradlew generateLicenseReport
   - ./gradlew javadoc
