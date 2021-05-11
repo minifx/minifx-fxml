@@ -15,7 +15,7 @@ buildscript {
     dependencies {
         classpath 'com.github.jk1:gradle-license-report:1.5'
         classpath 'io.github.gradle-nexus:publish-plugin:1.0.0'
-        classpath 'org.openjfx:javafx-plugin:0.0.9'
+        classpath 'org.openjfx:javafx-plugin:0.0.10'
     }
 }
 
@@ -115,7 +115,8 @@ idea {
 }
 
 javafx {
-    modules = ['javafx.fxml', 'javafx.controls']
+    version = "11.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
 }
 
 if (!project['CERN_VM']) {
