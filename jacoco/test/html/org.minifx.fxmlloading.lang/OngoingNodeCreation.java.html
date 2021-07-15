@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OngoingNodeCreation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading.lang</a> &gt; <span class="el_source">OngoingNodeCreation.java</span></div><h1>OngoingNodeCreation.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading.lang;
+
+import java.util.Objects;
+
+import org.minifx.fxmlloading.builders.FxmlNodeBuilders;
+import org.minifx.fxmlloading.factories.impl.ControllerFactory;
+
+import javafx.scene.Node;
+import javafx.scene.Parent;
+
+public class OngoingNodeCreation {
+
+    private final ControllerFactory controllerFactory;
+
+<span class="fc" id="L19">    public OngoingNodeCreation(ControllerFactory controllerFactory) {</span>
+<span class="fc" id="L20">        this.controllerFactory = Objects.requireNonNull(controllerFactory, &quot;controllerFactory must not be null&quot;);</span>
+<span class="fc" id="L21">    }</span>
+
+    public Parent byConventionFrom(Class&lt;?&gt; controllerClass) {
+<span class="fc" id="L24">        return FxmlNodeBuilders.byConventionFrom(controllerClass).controllersFrom(controllerFactory).build();</span>
+    }
+
+    public Parent fromFxml(String classpathResource) {
+<span class="nc" id="L28">        return FxmlNodeBuilders.fromFxml(classpathResource).controllersFrom(controllerFactory).build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

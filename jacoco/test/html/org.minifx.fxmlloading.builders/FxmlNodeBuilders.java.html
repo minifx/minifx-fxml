@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FxmlNodeBuilders.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading.builders</a> &gt; <span class="el_source">FxmlNodeBuilders.java</span></div><h1>FxmlNodeBuilders.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading.builders;
+
+import java.util.Objects;
+
+import org.minifx.fxmlloading.configuration.impl.ControllerBasedFxmlLoadingConfiguration;
+import org.minifx.fxmlloading.configuration.impl.ResourceBasedFxmlLoadingConfiguration;
+import org.minifx.fxmlloading.factories.impl.ControllerFactory;
+
+/**
+ * Provides entry points for fluent clauses to load javafx nodes from fxml files, based on different input parameter. The methods chains are designed to avoid non-meaningful only provide build methods, where it makes sense an
+ *
+ * @author kfuchsbe
+ */
+<span class="nc" id="L18">public class FxmlNodeBuilders {</span>
+
+    public static OngoingFxmlNodeBuilder fromFxml(String classpathResource) {
+<span class="nc" id="L21">        return new OngoingFxmlNodeBuilder(ResourceBasedFxmlLoadingConfiguration.fromFxml(classpathResource));</span>
+    }
+
+    public static NonNestableFxmlNodeBuilder byConventionFrom(Object controllerInstance) {
+<span class="fc" id="L25">        Objects.requireNonNull(controllerInstance);</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if (controllerInstance instanceof Class) {</span>
+<span class="nc" id="L27">            throw new IllegalArgumentException(&quot;Passed in controller must be a controller instance, not a class!&quot;);</span>
+        }
+<span class="fc" id="L29">        ControllerBasedFxmlLoadingConfiguration convention = ControllerBasedFxmlLoadingConfiguration</span>
+<span class="fc" id="L30">                .of(controllerInstance.getClass());</span>
+<span class="fc" id="L31">        return new NonNestableFxmlNodeBuilder(convention, ControllerFactory.fromController(controllerInstance));</span>
+    }
+
+    public static OngoingFxmlNodeBuilder byConventionFrom(Class&lt;?&gt; controllerClass) {
+<span class="fc" id="L35">        Objects.requireNonNull(controllerClass);</span>
+<span class="fc" id="L36">        ControllerBasedFxmlLoadingConfiguration convention = ControllerBasedFxmlLoadingConfiguration</span>
+<span class="fc" id="L37">                .of(controllerClass);</span>
+<span class="fc" id="L38">        return new OngoingFxmlNodeBuilder(convention);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

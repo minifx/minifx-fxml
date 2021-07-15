@@ -1,0 +1,8 @@
+org.minifx.fxmlloading
+org.minifx.fxmlloading.builders
+org.minifx.fxmlloading.configuration
+org.minifx.fxmlloading.configuration.impl
+org.minifx.fxmlloading.factories
+org.minifx.fxmlloading.factories.impl
+org.minifx.fxmlloading.lang
+org.minifx.fxmlloading.util

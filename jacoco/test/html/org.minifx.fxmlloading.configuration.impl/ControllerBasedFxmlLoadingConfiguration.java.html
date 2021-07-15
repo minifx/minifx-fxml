@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControllerBasedFxmlLoadingConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading.configuration.impl</a> &gt; <span class="el_source">ControllerBasedFxmlLoadingConfiguration.java</span></div><h1>ControllerBasedFxmlLoadingConfiguration.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading.configuration.impl;
+
+import static java.util.Objects.requireNonNull;
+import static javafx.fxml.FXMLLoader.CONTROLLER_SUFFIX;
+
+import java.net.URL;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import org.minifx.fxmlloading.configuration.FxmlLoadingConfiguration;
+
+public class ControllerBasedFxmlLoadingConfiguration implements FxmlLoadingConfiguration {
+
+    private final Class&lt;?&gt; controllerClass;
+
+<span class="fc" id="L20">    private ControllerBasedFxmlLoadingConfiguration(Class&lt;?&gt; controllerClass) {</span>
+<span class="fc" id="L21">        this.controllerClass = requireNonNull(controllerClass);</span>
+<span class="fc" id="L22">    }</span>
+
+    public static ControllerBasedFxmlLoadingConfiguration of(Class&lt;?&gt; controllerClass) {
+<span class="fc" id="L25">        return new ControllerBasedFxmlLoadingConfiguration(controllerClass);</span>
+    }
+
+    @Override
+    public String conventionalName() {
+<span class="fc" id="L30">        return controllerClass.getSimpleName().replaceAll(CONTROLLER_SUFFIX + &quot;$&quot;, &quot;&quot;);</span>
+    }
+
+    @Override
+    public ResourceBundle resourceBundle() {
+<span class="fc" id="L35">        String baseBundleName = bundleName();</span>
+        try {
+<span class="nc" id="L37">            return ResourceBundle.getBundle(baseBundleName);</span>
+<span class="fc" id="L38">        } catch (MissingResourceException mre) {</span>
+<span class="fc" id="L39">            return null;</span>
+        }
+    }
+
+    String bundleName() {
+<span class="fc" id="L44">        Package pckg = controllerClass.getPackage();</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (pckg == null) {</span>
+<span class="nc" id="L46">            return conventionalName();</span>
+        }
+<span class="fc" id="L48">        return pckg.getName() + &quot;.&quot; + conventionalName();</span>
+    }
+
+    private URL getResource(String fxmlFileName) {
+<span class="fc" id="L52">        return this.controllerClass.getResource(fxmlFileName);</span>
+    }
+
+    @Override
+    public boolean hasFxmlResource() {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        return (getResource(fxmlName()) != null);</span>
+    }
+
+    @Override
+    public URL fxmlResource() {
+<span class="fc" id="L62">        return getResource(fxmlName());</span>
+    }
+
+    private String fxmlName() {
+<span class="fc" id="L66">        return conventionalName() + &quot;.fxml&quot;;</span>
+    }
+
+    @Override
+    public URL cssResource() {
+<span class="nc" id="L71">        String cssName = conventionalName() + &quot;.css&quot;;</span>
+<span class="nc" id="L72">        return getResource(cssName);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L77">        return &quot;ControllerBasedFxmlLoadingConfiguration [controllerClass=&quot; + controllerClass + &quot;]&quot;;</span>
+    }
+
+    @Override
+    public String packageName() {
+<span class="nc" id="L82">        Package pckg = controllerClass.getPackage();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (pckg == null) {</span>
+<span class="nc" id="L84">            return null;</span>
+        }
+<span class="nc" id="L86">        return pckg.getName();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NonNestableFxmlNodeBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading.builders</a> &gt; <span class="el_source">NonNestableFxmlNodeBuilder.java</span></div><h1>NonNestableFxmlNodeBuilder.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2018 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading.builders;
+
+import java.util.Arrays;
+
+import org.minifx.fxmlloading.configuration.FxmlLoadingConfiguration;
+import org.minifx.fxmlloading.factories.impl.ClassToInstanceLookupControllerFactory;
+import org.minifx.fxmlloading.factories.impl.SingleControllerFactory;
+
+import javafx.util.Callback;
+
+public class NonNestableFxmlNodeBuilder extends AbstractFxmlNodeBuilder&lt;SingleControllerFactory&gt; {
+    public NonNestableFxmlNodeBuilder(FxmlLoadingConfiguration configuration,
+            SingleControllerFactory controllerFactory) {
+<span class="fc" id="L18">        super(configuration, controllerFactory);</span>
+<span class="fc" id="L19">    }</span>
+
+    public NestableFxmlNodeBuilder nestedControllersFrom(Callback&lt;Class&lt;?&gt;, Object&gt; nestedFactory) {
+<span class="nc" id="L22">        return new NestableFxmlNodeBuilder(configuration(), factory().withNestedFrom(nestedFactory));</span>
+    }
+
+    public NestableFxmlNodeBuilder nestedControllers(Iterable&lt;?&gt; controllerInstances) {
+<span class="nc" id="L26">        return new NestableFxmlNodeBuilder(configuration(),</span>
+<span class="nc" id="L27">                factory().withNestedFrom(ClassToInstanceLookupControllerFactory.ofInstances(controllerInstances)));</span>
+    }
+
+    public NestableFxmlNodeBuilder nestedControllers(Object... controllerInstances) {
+<span class="nc" id="L31">        return nestedControllers(Arrays.asList(controllerInstances));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

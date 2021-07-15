@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FxmlNodeLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading</a> &gt; <span class="el_source">FxmlNodeLoader.java</span></div><h1>FxmlNodeLoader.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading;
+
+import static java.util.Objects.requireNonNull;
+import static org.minifx.fxmlloading.util.FxmlControllers.useOnceOrThrow;
+
+import java.io.IOException;
+import java.net.URL;
+
+import org.minifx.fxmlloading.configuration.FxmlLoadingConfiguration;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.layout.StackPane;
+import javafx.util.Callback;
+
+public class FxmlNodeLoader {
+
+    private final Callback&lt;Class&lt;?&gt;, Object&gt; controllerFactory;
+    private final FxmlLoadingConfiguration configuration;
+
+<span class="fc" id="L26">    private FxmlNodeLoader(FxmlLoadingConfiguration convention, Callback&lt;Class&lt;?&gt;, Object&gt; controllerFactory) {</span>
+<span class="fc" id="L27">        this.configuration = requireNonNull(convention, &quot;controller convention must not be null&quot;);</span>
+<span class="fc" id="L28">        this.controllerFactory = requireNonNull(controllerFactory, &quot;controllerFactory must not be null&quot;);</span>
+<span class="fc" id="L29">    }</span>
+
+    public static final Parent loadNodeFrom(FxmlLoadingConfiguration convention,
+            Callback&lt;Class&lt;?&gt;, Object&gt; childControllerFactory) {
+<span class="fc" id="L33">        return new FxmlNodeLoader(convention, childControllerFactory).create();</span>
+    }
+
+    private Parent create() {
+<span class="fc" id="L37">        return loadFxml();</span>
+    }
+
+    private Parent loadFxml() {
+<span class="fc" id="L41">        URL fxmlUrl = configuration.fxmlResource();</span>
+        try {
+<span class="fc" id="L43">            FXMLLoader loader = new FXMLLoader(fxmlUrl, configuration.resourceBundle());</span>
+<span class="fc" id="L44">            loader.setLocation(fxmlUrl);</span>
+<span class="fc" id="L45">            loader.setControllerFactory(c -&gt; useOnceOrThrow(provideController(c)));</span>
+<span class="fc" id="L46">            return loader.load();</span>
+<span class="nc" id="L47">        } catch (IOException e) {</span>
+<span class="nc" id="L48">            throw new RuntimeException(&quot;Unable to load fx node from '&quot; + fxmlUrl + &quot;'&quot;, e);</span>
+        }
+    }
+
+    private static final Parent stackPaneOf(Parent root) {
+<span class="nc" id="L53">        StackPane stackPane = new StackPane();</span>
+<span class="nc" id="L54">        stackPane.getChildren().add(root);</span>
+<span class="nc" id="L55">        return stackPane;</span>
+    }
+
+    private Object provideController(Class&lt;?&gt; clazz) {
+<span class="fc" id="L59">        Object controller = controllerFactory.call(clazz);</span>
+
+<span class="pc bpc" id="L61" title="2 of 4 branches missed.">        if (controller == null || !clazz.isAssignableFrom(controller.getClass())) {</span>
+<span class="nc" id="L62">            throw new IllegalStateException(&quot;ControllerFactory [&quot; + controllerFactory.getClass().getName()</span>
+                    + &quot;] returned a controller [&quot; + controller + &quot;] that is not compatible with the requested type [&quot;
+<span class="nc" id="L64">                    + clazz.getName() + &quot;]&quot;);</span>
+        }
+<span class="fc" id="L66">        return controller;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

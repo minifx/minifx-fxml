@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelSharingControllerFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minifx-fxml</a> &gt; <a href="index.source.html" class="el_package">org.minifx.fxmlloading.factories</a> &gt; <span class="el_source">ModelSharingControllerFactory.java</span></div><h1>ModelSharingControllerFactory.java</h1><pre class="source lang-java linenums">/**
+ * Copyright (c) 2017 European Organisation for Nuclear Research (CERN), All Rights Reserved.
+ */
+
+package org.minifx.fxmlloading.factories;
+
+import static java.util.Objects.requireNonNull;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.function.Function;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.minifx.fxmlloading.factories.impl.ControllerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * A default factory for FXML controllers.
+ * &lt;p&gt;
+ * This class supports a basic field injection using {@link Inject @Inject} annotation. It can be used to initialize and
+ * configure controller, model or service instances, and bind them together.
+ * For every call of {@link #createController(Class)} method - a new controller instance is created, but all the
+ * injected dependencies (models, services, etc) are instantiated only once, stored in cache and used as singletons.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The factory first makes an attempt to match field to be injected with System properties and then with an optional
+ * {@link #fromPropertiesProvider(Function) properties provider}. The matching is done using {@link Named @Named}
+ * annotation if present, otherwise using field's name.
+ * If no matching property is found, the factory consults dependencies cache trying find a match with the field by
+ * &lt;b&gt;exact&lt;/b&gt; type. Otherwise it requests the instance provider to supply a new instance of given type, injects all
+ * its dependencies and puts into the cache.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * For primitive and {@link Enum enum} fields, the class makes a conversion when necessary e.g. when an integer field's
+ * value is injected from a System property (String).
+ * &lt;/p&gt;
+ * Example usage:
+ *
+ * &lt;pre&gt;
+ * class PersonModel {
+ *
+ *     {@literal @}Inject
+ *     {@literal @}Named(&quot;person.age.visible&quot;)
+ *     boolean defaultShowAge;
+ *
+ *     {@literal @}Inject
+ *     Side personDetailsPaneSide;
+ * }
+ *
+ * class PersonService {
+ *     Person findByName(String name) {
+ *         // ...
+ *     }
+ * }
+ *
+ * class PersonController {
+ *     {@literal @}Inject
+ *     PersonModel model;
+ *
+ *     {@literal @}Inject
+ *     PersonService service;
+ *
+ *     {@literal @}FXML
+ *     void initialize() {
+ *         // Initialize GUI with data from service, bind controls with model, etc.
+ *     }
+ * }
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * The class is not synchronized. If multiple threads access it concurrently, it must be synchronized externally.
+ * &lt;/p&gt;
+ */
+public class ModelSharingControllerFactory implements ControllerFactory {
+<span class="fc" id="L84">    private static final Logger LOGGER = LoggerFactory.getLogger(ModelSharingControllerFactory.class);</span>
+
+    /**
+     * Calls {@link Class#newInstance()} without any further checks.
+     */
+<span class="fc" id="L89">    private static final Function&lt;Class&lt;?&gt;, Object&gt; DEFAULT_INSTANCE_PROVIDER = clazz -&gt; {</span>
+        try {
+<span class="fc" id="L91">            return clazz.newInstance();</span>
+<span class="nc" id="L92">        } catch (InstantiationException | IllegalAccessException ex) {</span>
+<span class="nc" id="L93">            throw new IllegalStateException(&quot;Failed to instantiate &quot; + clazz, ex);</span>
+        }
+    };
+
+    private final Function&lt;Class&lt;?&gt;, Object&gt; instanceProvider;
+    private final Function&lt;String, Object&gt; propertiesProvider;
+
+    public ModelSharingControllerFactory(Function&lt;Class&lt;?&gt;, Object&gt; instanceProvider,
+<span class="fc" id="L101">                                         Function&lt;String, Object&gt; propertiesProvider) {</span>
+<span class="fc" id="L102">        this.instanceProvider = requireNonNull(instanceProvider, &quot;instanceProvider must not be null&quot;);</span>
+<span class="fc" id="L103">        this.propertiesProvider = propertiesProvider;</span>
+<span class="fc" id="L104">    }</span>
+
+    public static ModelSharingControllerFactory newDefault() {
+<span class="fc" id="L107">        return new ModelSharingControllerFactory(DEFAULT_INSTANCE_PROVIDER, null);</span>
+    }
+
+    public static ModelSharingControllerFactory fromPropertiesProvider(Function&lt;String, Object&gt; propertiesProvider) {
+<span class="fc" id="L111">        return new ModelSharingControllerFactory(DEFAULT_INSTANCE_PROVIDER, propertiesProvider);</span>
+    }
+
+<span class="fc" id="L114">    private final Map&lt;Class&lt;?&gt;, Object&gt; dependencies = new WeakHashMap&lt;&gt;();</span>
+
+    // For easier debugging
+<span class="fc" id="L117">    private int nestingLevel = 0;</span>
+
+    /**
+     * Creates a new instance of the given controller class.
+     *
+     * @param &lt;T&gt; the type of the controller to create
+     * @param controllerClass class of the FXML controller used to locate the FXML file
+     * @return the instance of the controller
+     */
+    public &lt;T&gt; T createController(Class&lt;T&gt; controllerClass) {
+        try {
+<span class="fc" id="L128">            return instanciateAndInjectDependencies(controllerClass);</span>
+        } finally {
+<span class="fc" id="L130">            nestingLevel = 0;</span>
+        }
+    }
+
+    &lt;T&gt; T instanciateAndInjectDependencies(Class&lt;T&gt; clazz) {
+<span class="fc" id="L135">        Objects.requireNonNull(clazz, &quot;Controller class must not be null&quot;);</span>
+
+<span class="fc" id="L137">        log(&quot;Creating instance of &quot; + clazz + &quot; using &quot; + instanceProvider);</span>
+<span class="fc" id="L138">        T controller = clazz.cast(instanceProvider.apply(clazz));</span>
+<span class="fc" id="L139">        nestingLevel++;</span>
+<span class="fc" id="L140">        injectDependencies(controller);</span>
+<span class="fc" id="L141">        nestingLevel--;</span>
+<span class="fc" id="L142">        return controller;</span>
+    }
+
+    void injectDependencies(Object instance) {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (Field field : findInjectableFields(instance.getClass())) {</span>
+<span class="fc" id="L147">            injectFieldValue(field, instance);</span>
+<span class="fc" id="L148">        }</span>
+<span class="fc" id="L149">    }</span>
+
+    void injectFieldValue(Field field, Object instance) {
+<span class="fc" id="L152">        log(&quot;Field to inject: &quot; + field.getName() + &quot; [&quot; + field.getType().getName() + &quot;]&quot;);</span>
+<span class="fc" id="L153">        nestingLevel++;</span>
+<span class="fc" id="L154">        Object fieldValue = getOrCreateFieldValue(field);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (fieldValue != null) {</span>
+<span class="fc" id="L156">            fieldValue = convertToFieldTypeIfNeeded(field, fieldValue);</span>
+<span class="fc" id="L157">            log(&quot;Injecting into &quot; + instance + &quot;: &quot; + field.getName() + &quot;=&quot; + fieldValue);</span>
+<span class="fc" id="L158">            setField(field, instance, fieldValue);</span>
+        }
+<span class="fc" id="L160">        nestingLevel--;</span>
+<span class="fc" id="L161">    }</span>
+
+    Object getOrCreateFieldValue(Field field) {
+<span class="fc" id="L164">        String propertyName = getPropertyName(field);</span>
+<span class="fc" id="L165">        Object fieldValue = System.getProperty(propertyName);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (fieldValue != null) {</span>
+<span class="fc" id="L167">            log(&quot;Field value specified as system property [&quot; + propertyName + &quot;=&quot; + fieldValue + &quot;]&quot;);</span>
+<span class="fc" id="L168">            return fieldValue;</span>
+        }
+
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (propertiesProvider != null) {</span>
+<span class="fc" id="L172">            fieldValue = propertiesProvider.apply(propertyName);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (fieldValue != null) {</span>
+<span class="fc" id="L174">                log(&quot;Field value [&quot; + propertyName + &quot;=&quot; + fieldValue + &quot;] provided by &quot; + propertiesProvider);</span>
+<span class="fc" id="L175">                return fieldValue;</span>
+            }
+        }
+
+<span class="fc" id="L179">        Class&lt;?&gt; fieldType = field.getType();</span>
+<span class="fc" id="L180">        fieldValue = dependencies.get(fieldType);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (fieldValue != null) {</span>
+<span class="fc" id="L182">            log(&quot;Found dependency value: &quot; + fieldValue);</span>
+<span class="fc" id="L183">            return fieldValue;</span>
+        }
+
+<span class="fc" id="L186">        log(&quot;Dependency not found - trying to instantiate&quot;);</span>
+<span class="fc bfc" id="L187" title="All 6 branches covered.">        if (fieldType.isPrimitive() || fieldType.equals(String.class) || fieldType.isEnum()) {</span>
+<span class="fc" id="L188">            log(&quot;Field type is primitive, String or Enum - skipping&quot;);</span>
+        } else {
+<span class="fc" id="L190">            fieldValue = instanciateAndInjectDependencies(fieldType);</span>
+<span class="fc" id="L191">            setDependency(fieldType, fieldValue);</span>
+        }
+<span class="fc" id="L193">        return fieldValue;</span>
+    }
+
+    static String getPropertyName(Field field) {
+<span class="fc" id="L197">        Named nameAnnotation = field.getAnnotation(Named.class);</span>
+<span class="pc bpc" id="L198" title="1 of 4 branches missed.">        if (nameAnnotation == null || &quot;&quot;.equals(nameAnnotation.value())) {</span>
+<span class="fc" id="L199">            return field.getName();</span>
+        }
+<span class="fc" id="L201">        return nameAnnotation.value();</span>
+    }
+
+    /**
+     * Stores given dependency in a cache.
+     *
+     * @param type       class of the dependency used for matching with injectable fields
+     * @param dependency the instance to be injected into fields of specified type
+     * @throws NullPointerException if the {@code type} is {@code null}
+     */
+    public void setDependency(Class&lt;?&gt; type, Object dependency) {
+<span class="fc" id="L212">        log(&quot;Cache dependency: &quot; + type.getName() + &quot; -&gt; &quot; + dependency);</span>
+<span class="fc" id="L213">        dependencies.put(type, dependency);</span>
+<span class="fc" id="L214">    }</span>
+
+    /**
+     * Clears dependencies cache.
+     */
+    public void clearDependencies() {
+<span class="nc" id="L220">        log(&quot;clearDependencies() called&quot;);</span>
+<span class="nc" id="L221">        dependencies.clear();</span>
+<span class="nc" id="L222">    }</span>
+
+    /**
+     * Returns the currently used instance provider.
+     *
+     * @return instance provider
+     */
+    public Function&lt;Class&lt;?&gt;, Object&gt; getInstanceProvider() {
+<span class="nc" id="L230">        return instanceProvider;</span>
+    }
+
+    /**
+     * Returns currently used properties provider.
+     *
+     * @return properties provider
+     */
+    public Function&lt;String, Object&gt; getPropertiesProvider() {
+<span class="nc" id="L239">        return propertiesProvider;</span>
+    }
+
+    private void log(String msg) {
+<span class="fc" id="L243">        LOGGER.debug(nestingLevelIndentation() + msg);</span>
+<span class="fc" id="L244">    }</span>
+
+    private String nestingLevelIndentation() {
+<span class="fc" id="L247">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (int i = 0; i &lt; nestingLevel; i++) {</span>
+<span class="fc" id="L249">            sb.append(&quot;   &quot;);</span>
+        }
+<span class="fc" id="L251">        return sb.toString();</span>
+    }
+
+    // REFLECTION METHODS
+
+    private static Set&lt;Field&gt; findInjectableFields(Class&lt;?&gt; clazz) {
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (!injectAnnotationPresentOnClasspath()) {</span>
+<span class="nc" id="L258">            return Collections.emptySet();</span>
+        }
+<span class="fc" id="L260">        Set&lt;Field&gt; annotatedFields = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L261">        Class&lt;?&gt; classToSearch = clazz;</span>
+<span class="pc bpc" id="L262" title="1 of 4 branches missed.">        while (classToSearch != null &amp;&amp; classToSearch != Object.class) {</span>
+<span class="fc" id="L263">            Field[] fields = classToSearch.getDeclaredFields();</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">            for (Field field : fields) {</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">                if (field.isAnnotationPresent(Inject.class)) {</span>
+<span class="fc" id="L266">                    annotatedFields.add(field);</span>
+                }
+            }
+<span class="fc" id="L269">            classToSearch = classToSearch.getSuperclass();</span>
+<span class="fc" id="L270">        }</span>
+<span class="fc" id="L271">        return annotatedFields;</span>
+    }
+
+    /**
+     * The Inject annotation is optional. If client app uses it - it should add it to the classpath, otherwise we should
+     * not require its presence.
+     */
+    private static boolean injectAnnotationPresentOnClasspath() {
+        try {
+<span class="fc" id="L280">            Class.forName(&quot;javax.inject.Inject&quot;);</span>
+<span class="fc" id="L281">            return true;</span>
+<span class="nc" id="L282">        } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L283">            LOGGER.debug(&quot;@Inject is not on the classpath&quot;, ex);</span>
+<span class="nc" id="L284">            return false;</span>
+        }
+    }
+
+    private static void setField(Field field, Object instance, Object fieldValue) {
+        try {
+<span class="fc" id="L290">            field.setAccessible(true);</span>
+<span class="fc" id="L291">            field.set(instance, fieldValue);</span>
+<span class="nc" id="L292">        } catch (IllegalArgumentException | IllegalAccessException ex) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">            String fieldValueType = fieldValue == null ? null : fieldValue.getClass().getName();</span>
+<span class="nc" id="L294">            throw new IllegalStateException(&quot;Failed to set &quot; + fieldValue + &quot; [&quot; + fieldValueType + &quot;] to &quot; + field</span>
+                    + &quot; on instance &quot; + instance, ex);
+<span class="fc" id="L296">        }</span>
+<span class="fc" id="L297">    }</span>
+
+    private static Object convertToFieldTypeIfNeeded(Field field, Object fieldValue) {
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">        if (fieldValue == null) {</span>
+<span class="nc" id="L301">            return fieldValue;</span>
+        }
+<span class="fc" id="L303">        Class&lt;?&gt; fieldType = wrapIfPrimitive(field.getType());</span>
+<span class="fc" id="L304">        Class&lt;?&gt; valueType = fieldValue.getClass();</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        if (fieldType.isAssignableFrom(valueType)) {</span>
+<span class="fc" id="L306">            return fieldValue;</span>
+        }
+
+<span class="pc bpc" id="L309" title="1 of 4 branches missed.">        if (field.getType().isPrimitive() || field.getType().isEnum()) {</span>
+<span class="fc" id="L310">            return valueOf(field, fieldType, fieldValue);</span>
+        }
+        // fall back - will fail on set
+<span class="nc" id="L313">        return fieldValue;</span>
+    }
+
+    private static Object valueOf(Field field, Class&lt;?&gt; fieldType, Object fieldValue) {
+        try {
+<span class="fc" id="L318">            Method valueOf = fieldType.getMethod(&quot;valueOf&quot;, String.class);</span>
+<span class="fc" id="L319">            return valueOf.invoke(null, fieldValue.toString());</span>
+<span class="nc" id="L320">        } catch (Exception ex) {</span>
+<span class="nc" id="L321">            throw new IllegalStateException(</span>
+<span class="nc" id="L322">                    &quot;Failed to convert &quot; + fieldValue + &quot; [&quot; + fieldValue.getClass().getName() + &quot;] to &quot; + field, ex);</span>
+        }
+    }
+
+    // Found nothing in JDK and don't want to pull Guava just for this
+<span class="fc" id="L327">    private static final Map&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt; PRIMITIVES_TO_WRAPPERS = new HashMap&lt;&gt;();</span>
+
+    static {
+<span class="fc" id="L330">        PRIMITIVES_TO_WRAPPERS.put(boolean.class, Boolean.class);</span>
+<span class="fc" id="L331">        PRIMITIVES_TO_WRAPPERS.put(byte.class, Byte.class);</span>
+<span class="fc" id="L332">        PRIMITIVES_TO_WRAPPERS.put(char.class, Character.class);</span>
+<span class="fc" id="L333">        PRIMITIVES_TO_WRAPPERS.put(double.class, Double.class);</span>
+<span class="fc" id="L334">        PRIMITIVES_TO_WRAPPERS.put(float.class, Float.class);</span>
+<span class="fc" id="L335">        PRIMITIVES_TO_WRAPPERS.put(int.class, Integer.class);</span>
+<span class="fc" id="L336">        PRIMITIVES_TO_WRAPPERS.put(long.class, Long.class);</span>
+<span class="fc" id="L337">        PRIMITIVES_TO_WRAPPERS.put(short.class, Short.class);</span>
+<span class="fc" id="L338">    }</span>
+
+    static Class&lt;?&gt; wrapIfPrimitive(Class&lt;?&gt; type) {
+<span class="fc bfc" id="L341" title="All 2 branches covered.">        if (type.isPrimitive()) {</span>
+<span class="fc" id="L342">            return PRIMITIVES_TO_WRAPPERS.get(type);</span>
+        }
+<span class="fc" id="L344">        return type;</span>
+    }
+
+    @Override
+    public Object call(Class&lt;?&gt; controllerClass) {
+<span class="fc" id="L349">        return createController(controllerClass);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
